@@ -1,0 +1,118 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bezier Testing :)</title>
+</head>
+<body>
+
+<div id="handle1" style="position: absolute; left: 0; cursor: move">
+  <svg width="12" height="12"><circle r="5" cx="5" cy="5" fill="green"/></svg>
+</div>
+<div id="handle2" style="position: absolute; left: 50px; cursor: move">
+  <svg width="12" height="12"><circle r="5" cx="5" cy="5" fill="green"/></svg>
+</div>
+
+<div id="handle3" style="position: absolute; left: 100px; cursor: move">
+  <svg width="12" height="12"><circle r="5" cx="5" cy="5" fill="blue"/></svg>
+</div>
+<div id="handle4" style="position: absolute; left: 150px; cursor: move">
+  <svg width="12" height="12"><circle r="5" cx="5" cy="5" fill="blue"/></svg>
+</div>
+
+<svg width="1000" height="1000" xmlns="http://www.w3.org/2000/svg">
+  <path id="bezier" d="M 0 0 c 100 100, 200 0, 300, 100" stroke="black" stroke-width="4" fill="none"/>
+</svg>
+
+<script>
+
+  dragElement(document.getElementById("handle1"))
+  dragElement(document.getElementById("handle2"))
+  dragElement(document.getElementById("handle3"))
+  dragElement(document.getElementById("handle4"))
+
+  updateCurve("bezier")
+
+  // https://www.w3schools.com/howto/howto_js_draggable.asp
+  function dragElement(elmnt) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    if (document.getElementById(elmnt.id + "-header")) {
+      // if present, the header is where you move the DIV from:
+      document.getElementById(elmnt.id + "-header").onmousedown = dragMouseDown;
+    } else {
+      // otherwise, move the DIV from anywhere inside the DIV:
+      elmnt.onmousedown = dragMouseDown;
+    }
+    onDrag(elmnt)
+
+    function dragMouseDown(e) {
+      e = e || window.event;
+      e.preventDefault();
+      // get the mouse cursor position at startup:
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      document.onmouseup = closeDragElement;
+      // call a function whenever the cursor moves:
+      document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+      e = e || window.event;
+      e.preventDefault();
+      // calculate the new cursor position:
+      pos1 = pos3 - e.clientX;
+      pos2 = pos4 - e.clientY;
+      pos3 = e.clientX;
+      pos4 = e.clientY;
+      // set the element's new position:
+      elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+      elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+
+      onDrag(elmnt)
+    }
+
+    function closeDragElement() {
+      // stop moving when mouse button is released:
+      document.onmouseup = null;
+      document.onmousemove = null;
+    }
+  }
+
+  let curve = [
+    0, 0,
+    0, 0,
+    0, 0,
+    0, 0
+  ]
+
+  function onDrag(e) {
+    const id = e.id;
+
+    if (!id.startsWith("handle"))
+      return;
+
+    let index = id.substring(6, id.length) - 1
+
+    curve[index * 2] = e.style.left.substring(0, e.style.left.length - 2);
+    curve[index * 2 + 1] = e.style.top.substring(0, e.style.top.length - 2);
+
+    updateCurve()
+  }
+
+  function updateCurve(elmnt) {
+    let startX  = curve[0]
+    let startY  = curve[1]
+    let endX    = curve[2]
+    let endY    = curve[3]
+
+    let point1X = curve[4]
+    let point1Y = curve[5]
+    let point2X = curve[6]
+    let point2Y = curve[7]
+
+    let path = `M ${startX} ${startY} c ${point1X - startX} ${point1Y - startY}, ${point2X - startX} ${point2Y - startY}, ${endX - startX} ${endY - startY}`;
+    elmnt.setAttribute("d", path)
+  }
+</script>
+</body>
+</html>
