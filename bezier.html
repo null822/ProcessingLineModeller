@@ -6,32 +6,27 @@
 </head>
 <body>
 
-<div id="handle1" style="position: absolute; left: 0; cursor: move">
-  <svg width="12" height="12"><circle r="5" cx="5" cy="5" fill="green"/></svg>
-</div>
-<div id="handle2" style="position: absolute; left: 50px; cursor: move">
-  <svg width="12" height="12"><circle r="5" cx="5" cy="5" fill="green"/></svg>
-</div>
 
-<div id="handle3" style="position: absolute; left: 100px; cursor: move">
-  <svg width="12" height="12"><circle r="5" cx="5" cy="5" fill="blue"/></svg>
+<div id="bezier1">
+  <svg width="1000" height="1000" xmlns="http://www.w3.org/2000/svg">
+    <path d="M 0 0 c 100 100, 200 0, 300, 100" stroke="black" stroke-width="4" fill="none"/>
+  </svg>
+  <div id="handle1" style="position: absolute; left: 0; top: 0; cursor: move">
+    <svg width="12" height="12"><circle r="5" cx="5" cy="5" fill="green"/></svg>
+  </div>
+  <div id="handle2" style="position: absolute; left: 50px; top: 0; cursor: move">
+    <svg width="12" height="12"><circle r="5" cx="5" cy="5" fill="green"/></svg>
+  </div>
 </div>
-<div id="handle4" style="position: absolute; left: 150px; cursor: move">
-  <svg width="12" height="12"><circle r="5" cx="5" cy="5" fill="blue"/></svg>
-</div>
-
-<svg width="1000" height="1000" xmlns="http://www.w3.org/2000/svg">
-  <path id="bezier" d="M 0 0 c 100 100, 200 0, 300, 100" stroke="black" stroke-width="4" fill="none"/>
-</svg>
-
 <script>
+
+  let curve = [
+    0, 0,
+    0, 0
+  ]
 
   dragElement(document.getElementById("handle1"))
   dragElement(document.getElementById("handle2"))
-  dragElement(document.getElementById("handle3"))
-  dragElement(document.getElementById("handle4"))
-
-  updateCurve("bezier")
 
   // https://www.w3schools.com/howto/howto_js_draggable.asp
   function dragElement(elmnt) {
@@ -78,40 +73,49 @@
     }
   }
 
-  let curve = [
-    0, 0,
-    0, 0,
-    0, 0,
-    0, 0
-  ]
-
-  function onDrag(e) {
-    const id = e.id;
+  function onDrag(elmnt) {
+    const id = elmnt.id;
 
     if (!id.startsWith("handle"))
       return;
 
     let index = id.substring(6, id.length) - 1
 
-    curve[index * 2] = e.style.left.substring(0, e.style.left.length - 2);
-    curve[index * 2 + 1] = e.style.top.substring(0, e.style.top.length - 2);
+    curve[index * 2] = parseInt(elmnt.style.left.substring(0, elmnt.style.left.length - 2));
+    curve[index * 2 + 1] = parseInt(elmnt.style.top.substring(0, elmnt.style.top.length - 2));
 
-    updateCurve()
+    updateCurve(elmnt.parentNode, true, curve[0], curve[1], true, curve[2], curve[3])
   }
 
-  function updateCurve(elmnt) {
-    let startX  = curve[0]
-    let startY  = curve[1]
-    let endX    = curve[2]
-    let endY    = curve[3]
+  /**
+   * Updates the supplied Bézier curve.
+   * @param curve a \<div> containing the curve SVG
+   * @param ah whether point A is connected to horizontally
+   * @param ax the X coordinate of point A
+   * @param ay the Y coordinate of point A
+   * @param bh whether point B is connected to horizontally
+   * @param bx the X coordinate of point B
+   * @param by the Y coordinate of point B
+   */
+  function updateCurve(curve, ah, ax, ay, bh, bx, by) {
 
-    let point1X = curve[4]
-    let point1Y = curve[5]
-    let point2X = curve[6]
-    let point2Y = curve[7]
+    let directionX = bx - ax;
+    let directionY = by - ay;
 
-    let path = `M ${startX} ${startY} c ${point1X - startX} ${point1Y - startY}, ${point2X - startX} ${point2Y - startY}, ${endX - startX} ${endY - startY}`;
-    elmnt.setAttribute("d", path)
+    let cx = ax // point C (handle for point A)
+    let cy = ay
+    let dx = bx // point D (handle for point B)
+    let dy = by
+
+    if (ah) cx = Math.round(ax + directionX / 3)
+    else    cy = Math.round(ay + directionY / 3)
+    if (bh) dx = Math.round(bx - directionX / 3)
+    else    dy = Math.round(by - directionY / 3)
+
+    console.log(`ah:${ah} bh:${bh} 1:(${ax}, ${ay}) 2:(${bx}, ${by})`)
+
+    let path = `M ${ax} ${ay} c ${cx - ax} ${cy - ay}, ${dx - ax} ${dy - ay}, ${bx - ax} ${by - ay}`;
+    curve.getElementsByTagName("path")[0].setAttribute("d", path)
   }
 </script>
 </body>
