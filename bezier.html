@@ -84,7 +84,9 @@
     curve[index * 2] = parseInt(elmnt.style.left.substring(0, elmnt.style.left.length - 2));
     curve[index * 2 + 1] = parseInt(elmnt.style.top.substring(0, elmnt.style.top.length - 2));
 
-    updateCurve(elmnt.parentNode, true, curve[0], curve[1], true, curve[2], curve[3])
+    updateCurve(elmnt.parentNode.getElementsByTagName("path")[0],
+      true, curve[0], curve[1],
+      true, curve[2], curve[3])
   }
 
   /**
@@ -112,10 +114,8 @@
     if (bh) dx = Math.round(bx - directionX / 3)
     else    dy = Math.round(by - directionY / 3)
 
-    console.log(`ah:${ah} bh:${bh} 1:(${ax}, ${ay}) 2:(${bx}, ${by})`)
-
     let path = `M ${ax} ${ay} c ${cx - ax} ${cy - ay}, ${dx - ax} ${dy - ay}, ${bx - ax} ${by - ay}`;
-    curve.getElementsByTagName("path")[0].setAttribute("d", path)
+    curve.setAttribute("d", path)
   }
 </script>
 </body>

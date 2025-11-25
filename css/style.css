@@ -82,10 +82,15 @@ table.recipe-data {
   width: 100%;
 }
 
-.recipe-data>tbody>tr>td {
+.recipe-data>tbody>tr> td {
   border: 1px solid var(--light6);
 }
 
-.recipe-data>tbody>tr:nth-child(even){ background-color: var(--light1) }
-.recipe-data>tbody>tr:nth-child(odd){ background-color: var(--light2) }
-.recipe-data>tbody>tr:hover { background-color: var(--light4) }
+.recipe-data>tbody> tr:nth-child(even){ background-color: var(--light1) }
+.recipe-data>tbody> tr:nth-child(odd){ background-color: var(--light2) }
+.recipe-data>tbody> tr:hover { background-color: var(--light4) }
+
+.recipe-row-connector {
+  text-align: center;
+  vertical-align: center;
+}
