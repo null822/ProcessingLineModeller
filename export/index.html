@@ -7,11 +7,11 @@
   <title>Processing Line Modeller</title>
   <link rel="stylesheet" href="css/style.css">
 
-  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" href="/export/favicon.ico" sizes="any">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
 
-  <link rel="manifest" href="site.webmanifest">
+  <link rel="manifest" href="../site.webmanifest">
   <meta name="theme-color" content="#fafafa">
 </head>
 
@@ -74,6 +74,23 @@
   <script>
     setupConnectionsSvg()
     window.onresize = setupConnectionsSvg;
+
+    function test() {
+      let mysql = require('mysql2');
+
+      let con = mysql.createConnection({
+        host: "mysql.datagrip-dbs.intellij.net",
+        user: "datagrip",
+        password: "datagrip",
+        database: "datagrip"
+      });
+
+      con.connect(function(err) {
+        if (err) throw err;
+        console.log("Connected!");
+      });
+
+    }
   </script>
 </body>
 

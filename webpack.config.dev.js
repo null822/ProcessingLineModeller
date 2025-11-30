@@ -1,13 +1,13 @@
-const { merge } = require('webpack-merge');
-const common = require('./webpack.common.js');
-
-module.exports = merge(common, {
+module.exports = {
+  entry: {
+    app: '/export/index.js',
+  },
   mode: 'development',
   devtool: 'inline-source-map',
   devServer: {
     liveReload: true,
     hot: true,
-    open: true,
-    static: ['./'],
-  },
-});
+    open: false,
+    static: ['./export/'],
+  }
+}
