@@ -17,6 +17,13 @@
   --red2: #FF93A3;
   --red3: #FFC1CA;
 
+  --green1: #1ECE85;
+
+  --item-color: #FFDF3F;
+  --fluid-color: #6B35FF;
+  --energy-color: #FF3D6D;
+  --unknown-color: #FF23FF;
+
   --text1: #ffffff;
 }
 
@@ -91,6 +98,34 @@ table.recipe-data {
 .recipe-data>tbody> tr:hover { background-color: var(--light4) }
 
 .recipe-row-connector {
+  width:0.1%;
+  white-space: nowrap;
   text-align: center;
   vertical-align: center;
+}
+.recipe-row-connector-disabled {
+  width:0.1%;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: center;
+}
+.recipe-row-connector > div {
+  cursor: move;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+.recipe-row-input {
+  background-color: var(--green1);
+}
+.recipe-row-output {
+  background-color: var(--red1);
+}
+.recipe-row-label {
+  text-align: left;
+  padding: 0 5px 0 5px;
+}
+.recipe-row-value {
+  text-align: right;
+  padding: 0 5px 0 5px;
 }

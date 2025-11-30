@@ -20,251 +20,60 @@
     <input type="button" class="topbar-button" value="+" onclick="addRecipe()">
   </div>
 
-  <div hidden id="recipe-template" class="recipe">
-    <div id="recipe-header" class="recipe-header">
-      <div>Recipe</div>
-      <input type="button" class="recipe-delete-button" value="-" onclick="deleteRecipe(this.parentNode.parentNode)">
-    </div>
-    <table class="recipe-data" id="recipe-data">
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <table hidden id="recipe-row-template">
-    <tr id="recipe-row" connected-to="none" connected-by="none">
-      <td>a</td>
-      <td>a</td>
-      <td class="recipe-row-connector" ondragover="recipeConnectionDragover(event)" ondrop="recipeConnectionDrop(event)">
-        <div draggable="true" ondragstart="recipeConnectionDragStart(event)" style="cursor: move">
-          <svg width="12" height="12"><circle r="5" cx="5" cy="5" fill="green"/></svg>
-        </div>
-      </td>
-    </tr>
-  </table>
-
-  <div hidden id="recipe-connection-template">
-    <svg>
-      <path id="recipe-connection" d="M 0 0 c 100 100, 200 0, 300, 100" stroke="red" stroke-width="4" fill="none"/>
-    </svg>
-  </div>
-
   <div id="recipes"></div>
   <svg id="connections"
        style="pointer-events: none; position: absolute; top: 0; left: 0"
        width="100" height="100" viewBox="0 0 100 100">
   </svg>
 
-  <script name="recipes">
-    let recipeCounter = 0
-    function addRecipe() {
-      let recipe = newRecipe(recipeCounter)
-      document.getElementById("recipes").appendChild(recipe)
-      dragElement(recipe);
+  <div>
+    <template id="recipe-template">
+      <div class="recipe">
+        <div id="recipe-header" class="recipe-header">
+          <div>Recipe</div>
+          <input type="button" class="recipe-delete-button" value="-" onclick="deleteRecipe(this.parentNode.parentNode)">
+        </div>
+        <table class="recipe-data" id="recipe-data">
+          <tbody></tbody>
+        </table>
+      </div>
+    </template>
 
-      recipeCounter++;
-    }
+    <template id="recipe-row-connector-template">
+      <td class="recipe-row-connector" ondragover="recipeConnectionDragover(event)" ondrop="recipeConnectionDrop(event)">
+        <div draggable="true" ondragstart="recipeConnectionDragStart(event)">
+          <svg width="12" height="12"><circle r="5" cx="6" cy="6" fill="var(--item-color)" stroke="black" stroke-width="1px"/></svg>
+        </div>
+      </td>
+    </template>
+    <template id="recipe-row-connector-disabled-template">
+      <td class="recipe-row-connector-disabled ">
+        <div><svg width="12" height="12"></svg></div>
+      </td>
+    </template>
+    <template id="recipe-row-label-template">
+      <td class="recipe-row-label">a</td>
+    </template>
+    <template id="recipe-row-value-template">
+      <td class="recipe-row-value">a</td>
+    </template>
 
+    <template id="recipe-connection-template">
+      <svg>
+        <path d="M 0 0 c 100 100, 200 0, 300, 100" stroke="var(--item-color)" stroke-width="4" fill="none"/>
+      </svg>
+    </template>
+  </div>
 
-    /**
-     * Constructs a new recipe
-     * @param recipeId the integer ID of the new recipe
-     * @returns {Node} the new recipe
-     */
-    function newRecipe(recipeId) {
-      let recipe = document.getElementById("recipe-template").cloneNode(true);
-      recipe.removeAttribute("hidden")
-      recipe.id = `recipe${recipeId}`
-      recipe.querySelector("#recipe-header").id = `recipe${recipeId}-header`
-      let table = recipe.querySelector("#recipe-data")
-      table.id = `recipe${recipeId}-data`
-      let tableBody = table.children[0]
+  <script src="js/util.js"></script>
+  <script src="js/recipes.js"></script>
+  <script src="js/recipe-connections.js"></script>
+  <script src="js/dragging.js"></script>
+  <script src="js/setup-util.js"></script>
 
-      for (let i = 0; i < Math.ceil(Math.random() * 10); i++) {
-        tableBody.appendChild(newRecipeRow(recipeId, i))
-      }
-
-      return recipe
-    }
-
-    /**
-     * Constructs a new recipe row
-     * @param recipeId the integer ID of the recipe this row belongs to
-     * @param rowId the integer ID of the row, unique within this recipe
-     * @returns {Node} the new recipe row
-     */
-    function newRecipeRow(recipeId, rowId) {
-      let row = document.getElementById("recipe-row-template").children[0].children[0].cloneNode(true);
-      row.id = `recipe${recipeId}-row${rowId}`
-
-      return row
-    }
-
-    function deleteRecipe(recipe) {
-      document.getElementById(recipe.id).remove()
-    }
-
-  </script>
-  <script name="recipe-connections">
-    function recipeConnectionDragStart(e) {
-      e.dataTransfer.setData("source", e.target.parentNode.parentNode.id)
-    }
-    function recipeConnectionDragover(e) {
-      e.preventDefault();
-    }
-    function recipeConnectionDrop(e) {
-      e.preventDefault();
-      let sourceRow = document.getElementById(e.dataTransfer.getData("source"));
-      let targetRow = e.target
-      while (targetRow.tagName !== "TR") { targetRow = targetRow.parentNode }
-
-      sourceRow.setAttribute("connected-to", targetRow.id)
-      targetRow.setAttribute("connected-to", sourceRow.id)
-
-      let connection = newRecipeConnection()
-      sourceRow.setAttribute("connected-by", `${connection.id}`)
-      targetRow.setAttribute("connected-by", `${connection.id}`)
-
-      document.getElementById("connections").appendChild(connection)
-      updateConnection(sourceRow.id)
-    }
-
-    let recipeConnectionCounter = 0
-
-    /**
-     * Constructs a new recipe connection
-     * @returns {Node} the new recipe connection
-     */
-    function newRecipeConnection() {
-      let connection = document.getElementById("recipe-connection-template").children[0].children[0].cloneNode(true);
-      connection.id = `recipe-connection${recipeConnectionCounter}`
-
-      recipeConnectionCounter++
-      return connection
-    }
-
-    /**
-     * Updates the connection curve between 2 recipe rows
-     * @param id the ID of one of the recipe rows
-     */
-    function updateConnection(id) {
-      let source = document.getElementById(id)
-      let rowA = document.getElementById(id).children[2]
-      let connection = document.getElementById(source.getAttribute("connected-by"))
-      let rowB = document.getElementById(source.getAttribute("connected-to")).children[2]
-
-      let rectA = rowA.getBoundingClientRect();
-      let ax = rectA.x + 0.5*rectA.width
-      let ay = rectA.y + 0.5*rectA.height
-
-      let rectB = rowB.getBoundingClientRect();
-      let bx = rectB.x + 0.5*rectB.width
-      let by = rectB.y + 0.5*rectB.height
-
-      updateCurve(connection, true, ax, ay, true, bx, by)
-    }
-
-    /**
-     * Updates the supplied Bézier curve.
-     * @param curve a \<div> containing the curve SVG
-     * @param ah whether point A is connected to horizontally
-     * @param ax the X coordinate of point A
-     * @param ay the Y coordinate of point A
-     * @param bh whether point B is connected to horizontally
-     * @param bx the X coordinate of point B
-     * @param by the Y coordinate of point B
-     */
-    function updateCurve(curve, ah, ax, ay, bh, bx, by) {
-
-      let directionX = bx - ax;
-      let directionY = by - ay;
-
-      let cx = ax // point C (handle for point A)
-      let cy = ay
-      let dx = bx // point D (handle for point B)
-      let dy = by
-
-      if (ah) cx = Math.round(ax + directionX / 3)
-      else    cy = Math.round(ay + directionY / 3)
-      if (bh) dx = Math.round(bx - directionX / 3)
-      else    dy = Math.round(by - directionY / 3)
-
-      let path = `M ${ax} ${ay} c ${cx - ax} ${cy - ay}, ${dx - ax} ${dy - ay}, ${bx - ax} ${by - ay}`;
-      curve.setAttribute("d", path)
-    }
-  </script>
-  <script name="dragging">
-    /**
-     * Called every time an element is dragged
-     * @param e the dragged element
-     */
-    function onDrag(e) {
-      if (e.id.startsWith("recipe")) {
-        let rows = document.getElementById(e.id + "-data").children[0].children
-
-        for (let i = 0; i < rows.length; i++) {
-          let c = rows[i]
-          if (c.getAttribute("connected-to") !== "none") {
-            updateConnection(c.id)
-          }
-        }
-      }
-    }
-
-    // https://www.w3schools.com/howto/howto_js_draggable.asp
-    function dragElement(elmnt) {
-      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-      if (document.getElementById(elmnt.id + "-header")) {
-        // if present, the header is where you move the DIV from:
-        document.getElementById(elmnt.id + "-header").onmousedown = dragMouseDown;
-      } else {
-        // otherwise, move the DIV from anywhere inside the DIV:
-        elmnt.onmousedown = dragMouseDown;
-      }
-
-      function dragMouseDown(e) {
-        e = e || window.event;
-        e.preventDefault();
-        // get the mouse cursor position at startup:
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        // call a function whenever the cursor moves:
-        document.onmousemove = elementDrag;
-      }
-
-      function elementDrag(e) {
-        e = e || window.event;
-        e.preventDefault();
-        // calculate the new cursor position:
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        // set the element's new position:
-        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-
-        onDrag(elmnt)
-      }
-
-      function closeDragElement() {
-        // stop moving when mouse button is released:
-        document.onmouseup = null;
-        document.onmousemove = null;
-      }
-    }
-  </script>
-  <script name="setup-util">
+  <script>
     setupConnectionsSvg()
     window.onresize = setupConnectionsSvg;
-    function setupConnectionsSvg() {
-      let svg = document.getElementById("connections")
-      let width = window.innerWidth
-      let height = window.innerHeight
-      svg.setAttribute("width", `${width}`)
-      svg.setAttribute("height", `${height}`)
-      svg.setAttribute("viewBox", `0 0 ${width} ${height}`)
-    }
   </script>
 </body>
 
