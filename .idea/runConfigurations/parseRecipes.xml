@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="parseRecipes" type="NodeJSConfigurationType" path-to-node="node" path-to-js-file="backend/parseRecipes.ts" typescript-loader="bundled" working-dir="$PROJECT_DIR$">
+    <method v="2" />
+  </configuration>
+</component>

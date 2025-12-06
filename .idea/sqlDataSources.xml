@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DdlMappings">
+    <mapping uuid="11d9f500-4841-4629-87b9-5601f8c46d20" name="resources Mapping">
+      <data-sources db="29eecbf3-37e8-40ee-9e46-256ce03271bd" ddl="9706784a-7bb7-4492-b254-ad0fafbead84" />
+      <scope>
+        <node kind="database" negative="1" />
+      </scope>
+    </mapping>
+    <mapping uuid="c87e2b4e-ab1a-4329-b658-8e91c3218104" name="resources lite Mapping">
+      <data-sources db="29eecbf3-37e8-40ee-9e46-256ce03271bd" ddl="9706784a-7bb7-4492-b254-ad0fafbead84" />
+      <scope>
+        <node kind="database" negative="1" />
+      </scope>
+    </mapping>
+  </component>
+</project>

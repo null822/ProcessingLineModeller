@@ -1,0 +1,131 @@
+﻿:root{
+  --base0: #000000;
+  --base1: #202020;
+  --base2: #404040;
+  --base3: #606060;
+
+  --light1: #E0E0E0;
+  --light2: #D0D0D0;
+  --light4: #B0B0B0;
+  --light6: #909090;
+
+  --accent1: #2196F3;
+  --accent2: #56B6FF;
+  --accent3: #7FC9FF;
+
+  --red1: #DD6374;
+  --red2: #FF93A3;
+  --red3: #FFC1CA;
+
+  --green1: #1ECE85;
+
+  --item-color: #FFDF3F;
+  --fluid-color: #6B35FF;
+  --energy-color: #FF3D6D;
+  --unknown-color: #FF23FF;
+
+  --text1: #ffffff;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--base2);
+  overflow: hidden;
+  font-family: Helvetica, sans-serif;
+}
+
+.topbar {
+  width: 100vw;
+  height: 50px;
+  padding: 5px;
+  margin: 0;
+  box-sizing: border-box;
+  background-color: var(--base1);
+  border-bottom: 2px solid var(--base0)
+}
+.topbar-button {
+  height: 100%;
+  aspect-ratio: 1;
+  border: 0;
+  color: var(--text1);
+  background-color: var(--accent1);
+  font-size: 1.5em;
+}
+.topbar-button:hover { background-color: var(--accent2) }
+.topbar-button:active { background-color: var(--accent3) }
+
+.recipe {
+  position: absolute;
+  background-color: #f1f1f1;
+  border: 2px solid var(--accent1);
+  box-shadow: var(--base2) 1px 1px 20px;
+}
+.recipe-header {
+  min-width: 100px;
+  padding: 5px;
+  display: flex;
+  justify-content: space-between;
+  vertical-align: center;
+  background-color: var(--accent1);
+  color: var(--text1);
+  cursor: move;
+}
+.recipe-delete-button {
+  width: 20px;
+  aspect-ratio: 1;
+  padding: 0;
+  display: flex;
+  justify-content: space-evenly;
+  border: 0;
+  color: var(--text1);
+  background-color: var(--red1);
+}
+.recipe-delete-button:hover { background-color: var(--red2) }
+.recipe-delete-button:active { background-color: var(--red3) }
+
+table.recipe-data {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.recipe-data>tbody>tr> td {
+  border: 1px solid var(--light6);
+}
+
+.recipe-data>tbody> tr:nth-child(even){ background-color: var(--light1) }
+.recipe-data>tbody> tr:nth-child(odd){ background-color: var(--light2) }
+.recipe-data>tbody> tr:hover { background-color: var(--light4) }
+
+.recipe-row-connector {
+  width:0.1%;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: center;
+}
+.recipe-row-connector-disabled {
+  width:0.1%;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: center;
+}
+.recipe-row-connector > div {
+  cursor: move;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+.recipe-row-input {
+  background-color: var(--green1);
+}
+.recipe-row-output {
+  background-color: var(--red1);
+}
+.recipe-row-label {
+  text-align: left;
+  padding: 0 5px 0 5px;
+}
+.recipe-row-value {
+  text-align: right;
+  padding: 0 5px 0 5px;
+}
