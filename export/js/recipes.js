@@ -1,4 +1,22 @@
 ﻿let recipeCounter = 0
+
+
+async function lookupResource() {
+  let resource = document.getElementById("resource-input").value
+  const query = encodeURIComponent(`resource=${resource}`)
+  let response = await fetch(`http://localhost:3306/get_recipes?` + query)
+  if (!response.ok) {
+    throw new Error(`Response status: ${response.status}`);
+  }
+  const result = await response.json();
+  console.log(result)
+
+
+}
+
+
+
+
 function addRecipe() {
   let recipe = newRecipe(recipeCounter)
   document.getElementById("recipes").appendChild(recipe)
