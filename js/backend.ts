@@ -1,24 +1,7 @@
 import * as http from "node:http";
 
-let sqlite3 = require('sqlite3')
-
-const resources = new sqlite3.Database('db/resources.sqlite');
-
-resources.serialize(() => {
-  resources.run("drop table test");
-  resources.run("create table test (info text)");
-
-  const stmt = resources.prepare("insert into test values (?)");
-  for (let i = 0; i < 10; i++) {
-    stmt.run(i);
-  }
-  stmt.finalize();
-
-  resources.each("select rowid as id, info from test", (err, row) => {
-    console.log(row.id + ": " + row.info);
-  });
-});
-
+import Database = require('better-sqlite3');
+const db = new Database('db/recipes.sqlite', {readonly: true});
 
 const server = http.createServer(requestListener);
 const port = 3306;
@@ -28,30 +11,93 @@ server.listen(port, () => {
 
 async function requestListener(request: http.IncomingMessage, response: http.ServerResponse) {
   const url = request.url
-  // const path = host
 
-  switch (url) {
-    case "/test": test(response); break;
-    default: notFound(response); break;
+  response.setHeader('Access-Control-Allow-Origin', '*')
+
+  const separatorIndex = url.indexOf("?")
+  const path = url.substring(0, separatorIndex)
+  const query = decodeURIComponent(url.substring(separatorIndex + 1, url.length))
+    .split("&")
+    .map(q => q.split("="))
+    .reduce<any>((res, q) => {
+      res[q[0]] = q[1]
+      return res
+    }, {})
+
+  console.log(`${path} ${JSON.stringify(query)}`)
+
+  switch (path) {
+    case "/get_recipes":
+      response.writeHead(200, {'Content-Type': 'application/json'})
+      const recipes = getRecipes(query.resource)
+      response.end(JSON.stringify(recipes))
+      break
+    case "/search":
+      response.writeHead(200, {'Content-Type': 'application/json'})
+      const resources = searchResources((query.tag == "true" ? "#" : "") + query.q)
+      response.end(JSON.stringify(resources))
+      break
+    default:
+      response.writeHead(404, {'Content-Type': 'application/json'})
+      response.end(`{"error": "not found"}`)
+      break
   }
 }
 
-function notFound(response: http.ServerResponse) {
-  response.writeHead(404, {'Content-Type': 'text/json'});
-  response.end(`{"error": "not found"}`);
+function searchResources(resource: string) {
+  return {error: "not yet implemented"}
 }
 
-function test(response: http.ServerResponse) {
-  response.writeHead(200, {'Content-Type': 'text/json'});
+function getRecipes(resource: string) {
+  let resources: string[]
+  if (resource.startsWith("#")) {
+    resources =
+      db.prepare<any[], any>(`select id from tags where name = '${resource}'`)
+        .all()
+        .map(row =>
+          db.prepare<any[], any>(`select resource from tagContents where id = '${row.id}'`)
+            .all()
+            .map(row => row.resource))
+        .flat()
+  } else {
+    resources =
+      db.prepare<any[], any>(`select id from tagContents where resource = '${resource}'`)
+        .all()
+        .map(row => db.prepare<any[], any>(`select name from tags where id = ${row.id}`).get())
+        .map(row => row.name)
+  }
+  resources.push(resource)
 
-  let content = "["
+  let entries: number[] = resources
+    .map(resource => db
+      .prepare<any[], any>(`select id from recipeOutputs where resource = '${resource}'`)
+      .all()
+      .map<number>(row => row.id))
+    .flat()
 
-  resources.each("select rowid as id, info from test", (err, row) => {
-    content += `"${row.info}",`
-  }, (err, count) => {
-    content = content.substring(0, content.length - 1)
-    content += "]"
-    console.log(content)
-    response.end(content);
-  });
+  let recipes = db
+    .prepare<any[], any>(`select name, type, id from recipes where id in (${entries.join(", ")})`)
+    .all()
+    .reduce((result, row) => {
+      if (result[row.type] == undefined) result[row.type] = {}
+      result[row.type][row.name] = {
+        inputs: db
+          .prepare<any[], any>(`select resource, count from recipeInputs where id = ${row.id}`)
+          .all()
+          .reduce(((result, row) => {
+            result[row.resource] = row.count
+            return result
+          }), {}),
+        outputs: db
+          .prepare<any[], any>(`select resource, count from recipeOutputs where id = ${row.id}`)
+          .all()
+          .reduce(((result, row) => {
+            result[row.resource] = row.count
+            return result
+          }), {}),
+      }
+      return result
+    }, {})
+
+  return recipes
 }

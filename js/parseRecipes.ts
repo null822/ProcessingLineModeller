@@ -33,58 +33,29 @@ function reset() {
   db.prepare("drop table tags").run()
   db.prepare("drop table tagContents").run()
 
-  db.prepare("create table recipes (recipeId int, type text, mod text, duration int, power int)").run()
-  db.prepare("create table recipeInputs (recipeId int, isLiquid boolean, resource text, count int)").run()
-  db.prepare("create table recipeOutputs (recipeId int, isLiquid boolean, resource text, count int)").run()
-  db.prepare("create table tags (tagName int, tagId int, isLiquid boolean)").run()
-  db.prepare("create table tagContents (tagId int, resource text)").run()
-}
+  db.prepare("create table recipes (id int, name text, type text, duration int, power int)").run()
+  db.prepare("create table recipeInputs (id int, isLiquid boolean, resource text, count int)").run()
+  db.prepare("create table recipeOutputs (id int, isLiquid boolean, resource text, count int)").run()
 
-function loadTags() {
-  const itemTagPath = `${__dirname}/../raw_data/tags/items`
-  const itemTagPathEnd = itemTagPath.length + 1
-  for (const file of getAllFiles(itemTagPath)) {
-    const fileName = file.substring(itemTagPathEnd, file.length)
-    const name = fileName.substring(0, fileName.indexOf(".")).replace("/", ":")
-
-    storeTag(`#${name}`, false, JSON.parse(fs.readFileSync(file, 'utf8')))
-  }
-  const fluidTagPath = `${__dirname}/../raw_data/tags/fluids`
-  const fluidTagPathEnd = fluidTagPath.length + 1
-  for (const file of getAllFiles(fluidTagPath)) {
-    const fileName = file.substring(fluidTagPathEnd, file.length)
-    const name = fileName.substring(0, fileName.indexOf(".")).replace("/", ":")
-
-    storeTag(`#${name}`, true, JSON.parse(fs.readFileSync(file, 'utf8')))
-  }
-}
-
-function storeTag(name: string, isLiquid: boolean, contents: string[]) {
-
-  db.prepare(`insert into tags (tagName, tagId, isLiquid) values ('${name}', ${tagId}, ${isLiquid})`).run()
-  for (const entry of contents) {
-    db.prepare(`insert into tagContents (tagId, resource) values (${tagId}, '${entry}')`).run()
-  }
-  tagId++
-
-  return tagId - 1
+  db.prepare("create table tags (id int, name int, isLiquid boolean)").run()
+  db.prepare("create table tagContents (id int, resource text)").run()
 }
 
 function loadRecipes() {
   const recipeData = JSON.parse(fs.readFileSync(`${__dirname}/../raw_data/recipes.json`, 'utf8'))
-  for (const recipe of recipeData) {
+  for (const name in recipeData) {
+    const recipe = recipeData[name]
     const type: string = recipe.type;
-    const mod: string = type.substring(0, type.indexOf(":"))
 
     if (type.startsWith("gtceu")) {
       const tickInputs = recipe.tickInputs
       const eu: any[] = (tickInputs !== undefined && "eu" in tickInputs) ? tickInputs.eu : undefined
       const power: number = (eu !== undefined && "content" in eu[0]) ? parseInt(JSON.stringify(eu[0].content)) : 0
 
-      db.prepare(`insert into recipes(recipeId, type, mod, duration, power)
-              values ('${recipeId}',
+      db.prepare(`insert into recipes(id, name, type, duration, power)
+              values (${recipeId},
+                      '${name}',
                       '${type}',
-                      '${mod}',
                       ${recipe.duration ?? 0},
                       ${power})`
       ).run()
@@ -113,12 +84,31 @@ function loadRecipes() {
         }
       }
 
-    } else {
-      db.prepare(`insert into recipes (recipeId, type, mod, duration, power)
-              values ('${recipeId}', '${type}', '${mod}', 0, 0)`).run()
+    } else { // TODO: non-gtceu recipe support
+      // db.prepare(`insert into recipes (recipeId, type, mod, duration, power)
+      //         values ('${recipeId}', '${type}', '${mod}', 0, 0)`).run()
     }
 
     recipeId++;
+  }
+}
+
+function loadTags() {
+  const itemTagPath = `${__dirname}/../raw_data/tags/items`
+  const itemTagPathEnd = itemTagPath.length + 1
+  for (const file of getAllFiles(itemTagPath)) {
+    const fileName = file.substring(itemTagPathEnd, file.length)
+    const name = fileName.substring(0, fileName.indexOf(".")).replace("/", ":")
+
+    storeTag(`#${name}`, false, JSON.parse(fs.readFileSync(file, 'utf8')))
+  }
+  const fluidTagPath = `${__dirname}/../raw_data/tags/fluids`
+  const fluidTagPathEnd = fluidTagPath.length + 1
+  for (const file of getAllFiles(fluidTagPath)) {
+    const fileName = file.substring(fluidTagPathEnd, file.length)
+    const name = fileName.substring(0, fileName.indexOf(".")).replace("/", ":")
+
+    storeTag(`#${name}`, true, JSON.parse(fs.readFileSync(file, 'utf8')))
   }
 }
 
@@ -153,12 +143,12 @@ function decodeItemContent(content: any, recipeId: number, table: string) {
       let tags: string[] = content.children.map((x: any) => decodeIngredient(x))
       let rows = []
       for (const tag of tags) {
-        const result: any = db.prepare(`select tagId from tags where tagName = '${tag}'`).get()
-        rows.push(result.tagId)
+        const result: any = db.prepare(`select id from tags where name = '${tag}'`).get()
+        rows.push(result.id)
       }
       let intersection = []
       for (const row of rows) {
-        let entries: any[] = db.prepare(`select resource from tagContents where tagId = ${row}`)
+        let entries: any[] = db.prepare(`select resource from tagContents where id = ${row}`)
           .all().map((row: any) => row.resource)
         if (intersection.length === 0) intersection = entries
         else intersection = intersection.filter(value => entries.includes(value)); // calculate intersection
@@ -198,6 +188,17 @@ function decodeIngredient(ingredient: any) {
 }
 
 function storeRecipeIo(table: string, recipeId: number, isFluid: boolean, resource: string, count: number) {
-  db.prepare(`insert into ${table} (recipeId, isLiquid, resource, count)
+  db.prepare(`insert into ${table} (id, isLiquid, resource, count)
     values ('${recipeId}', '${isFluid}', '${resource}', '${count}')`).run()
+}
+
+function storeTag(name: string, isLiquid: boolean, contents: string[]) {
+
+  db.prepare(`insert into tags (id, name, isLiquid) values (${tagId}, '${name}', ${isLiquid})`).run()
+  for (const entry of contents) {
+    db.prepare(`insert into tagContents (id, resource) values (${tagId}, '${entry}')`).run()
+  }
+  tagId++
+
+  return tagId - 1
 }
