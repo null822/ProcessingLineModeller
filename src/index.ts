@@ -1,4 +1,9 @@
-import './styles.css';
+import './css/constants.css';
+import './css/main.css';
+import './css/topbar.css';
+import './css/recipe-selector.css';
+import './css/recipe.css';
+
 import * as a from './ts/dragging'
 import * as b from './ts/recipe-connections'
 import * as c from './ts/recipe-selection'

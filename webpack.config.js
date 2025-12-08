@@ -1,6 +1,7 @@
 import path from 'path'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import CopyPlugin from "copy-webpack-plugin";
+import MiniCssExtractPlugin from "mini-css-extract-plugin";
 const projectRoot = import.meta.dirname;
 
 let config = {
@@ -15,15 +16,18 @@ let config = {
     libraryExport: 'default',
   },
   plugins: [
+    new HtmlWebpackPlugin({
+      template: './src/index.html',
+      favicon: './src/assets/favicon.ico'
+    }),
     new CopyPlugin({
       patterns: [
         { from: "src/robots.txt", to: "robots.txt" },
         { from: "src/assets/favicon.ico", to: "favicon.ico" },
       ],
     }),
-    new HtmlWebpackPlugin({
-      template: './src/index.html',
-      favicon: './src/assets/favicon.ico'
+    new MiniCssExtractPlugin({
+      filename: '[name].[contenthash].css'
     })
   ],
   resolve: {
@@ -37,8 +41,8 @@ let config = {
         exclude: /node_modules/,
       },
       {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        test: /\.css$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
       {
         test: /\.(png|jpe?g|gif|svg|ico)$/i,

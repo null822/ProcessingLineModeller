@@ -1,5 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="backend" type="NodeJSConfigurationType" path-to-node="node" node-parameters="--watch" path-to-js-file="backend/backend.ts" typescript-loader="bundled" working-dir="$PROJECT_DIR$">
-    <method v="2" />
-  </configuration>
-</component>

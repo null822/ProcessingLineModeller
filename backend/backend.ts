@@ -1,7 +1,6 @@
 import * as http from "node:http";
 import Database from "better-sqlite3";
 
-// export { requestListener }
 export default handleRequest
 
 const db = new Database('db/recipes.sqlite', {readonly: true});
@@ -23,17 +22,25 @@ async function handleRequest(request: http.IncomingMessage, response: http.Serve
     }, {})
 
   switch (path) {
-    case "/search_recipes":
+    case "/search-recipes":
       response.writeHead(200, {'Content-Type': 'application/json'})
       response.end(JSON.stringify(searchRecipes(query.input, query.output)))
       return 200
     case "/search":
       response.writeHead(200, {'Content-Type': 'application/json'})
-      response.end(JSON.stringify(searchResources(query.q)))
+      response.end(JSON.stringify(searchResources(query.q, query.max ?? -1)))
       return 200
     case "/expand":
       response.writeHead(200, {'Content-Type': 'application/json'})
       response.end(JSON.stringify(expandResource(query.q)))
+      return 200
+    case "/get-recipe":
+      response.writeHead(200, {'Content-Type': 'application/json'})
+      response.end(JSON.stringify(getRecipe(query.name)))
+      return 200
+    case "/is-same-resource":
+      response.writeHead(200, {'Content-Type': 'application/json'})
+      response.end(JSON.stringify(isSameResource(query.a, query.b)))
       return 200
     default:
       return 404
@@ -41,30 +48,35 @@ async function handleRequest(request: http.IncomingMessage, response: http.Serve
 }
 
 
-function searchResources(query: string) {
+function searchResources(query: string, max: number) {
+  query = likeSanitizeInput(query)
+
   if (query == undefined) return []
   let resources: string[]
   if (query.startsWith("#")) {
     resources = db
-      .prepare<any[], any>(`select name from tags where name like '${query}%'`)
+      .prepare<any[], any>(`select name from tags where name like '${query}%' escape '\\'`)
       .all()
       .map(row => row.name)
   } else {
     resources = db
-      .prepare<any[], any>(`select name from resources where name like '%${query}%'`)
+      .prepare<any[], any>(`select name from resources where name like '%${query}%' escape '\\'`)
       .all()
       .map(row => row.name)
     resources.push(...db
-        .prepare<any[], any>(`select name from tags where name like '%${query}%'`)
+        .prepare<any[], any>(`select name from tags where name like '%${query}%' escape '\\'`)
         .all()
         .map(row => row.name))
   }
   resources.sort((a, b) => a.length - b.length)
-
+  if (max > 0) resources = resources.slice(0, max)
   return resources
 }
 
 function searchRecipes(input: string, output: string) {
+  input = sanitizeInput(input)
+  output = sanitizeInput(output)
+
   const inputResources = expandResource(input);
   const outputResources = expandResource(output);
 
@@ -81,26 +93,15 @@ function searchRecipes(input: string, output: string) {
       .map<number>(row => row.id))
     .flat())
 
-  return db
+  let result = db
     .prepare<any[], any>(`select name, type, id from recipes where id in (${entries.join(", ")})`)
     .all()
-    .reduce((result, row) => {
+
+  return result.reduce((result, row) => {
       if (result[row.type] == undefined) result[row.type] = {}
       result[row.type][row.name] = {
-        inputs: db
-          .prepare<any[], any>(`select resource, count from recipeInputs where id = ${row.id}`)
-          .all()
-          .reduce(((result, row) => {
-            result[row.resource] = row.count
-            return result
-          }), {}),
-        outputs: db
-          .prepare<any[], any>(`select resource, count from recipeOutputs where id = ${row.id}`)
-          .all()
-          .reduce(((result, row) => {
-            result[row.resource] = row.count
-            return result
-          }), {}),
+        inputs: getRecipeIO(row.id, false),
+        outputs: getRecipeIO(row.id, true),
       }
       return result
     }, {})
@@ -110,6 +111,8 @@ function searchRecipes(input: string, output: string) {
  * Searches the database for every resource and tag that is represented by the resource supplied
  */
 function expandResource(resource: string) {
+  resource = sanitizeInput(resource)
+
   if (resource == undefined) return []
   let resources: string[]
   if (resource.startsWith("#")) {
@@ -131,4 +134,59 @@ function expandResource(resource: string) {
       .map(row => row.name))
   }
   return resources
+}
+
+function getRecipe(name: string) {
+  name = sanitizeInput(name)
+
+  const meta = db
+    .prepare<any[], any>(`select id, type, duration, power from recipes where name = '${name}'`)
+    .get()
+
+  return {
+    name: name,
+    type: meta.type,
+    duration: meta.duration,
+    power: meta.power,
+    inputs: getRecipeIO(meta.id, false),
+    outputs: getRecipeIO(meta.id, true),
+  }
+}
+
+function isSameResource(a: string, b: string) {
+  const expandA = expandResource(a)
+  if (expandA.includes(b)) return {result: true}
+  const expandB = expandResource(b)
+  if (expandA.filter(element => expandB.includes(element)).length != 0)
+    return {result: true}
+  return {result: false}
+}
+
+function getRecipeIO(id: number, isOutput: boolean) {
+  const table = isOutput ? "recipeOutputs" : "recipeInputs"
+  return db
+    .prepare<any[], any>(`select resource, isFluid, count from ${table} where id = ${id}`)
+    .all()
+    .map(row => {
+      return {
+        resource: row.resource,
+        isFluid: row.isFluid,
+        quantity: row.count
+      }
+    })
+}
+
+function sanitizeInput(input: string) {
+  if (input == null) return ""
+  return input
+    .replace(/'/gi, "")
+    .replace(/\\/gi, "\\\\")
+}
+
+function likeSanitizeInput(input: string) {
+  return sanitizeInput(input)
+    .replace(/_/gi, "\\_")
+    .replace(/%/gi, "\\%")
+    .replace(/\[/gi, "\\[")
+    .replace(/\^/gi, "\\^")
 }

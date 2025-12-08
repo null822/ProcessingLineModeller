@@ -1,6 +1,8 @@
 ﻿import {createElement} from "./util";
+import {queryDatabase} from "./db-connection";
 
 export {
+  connectRecipeRows,
   recipeConnectionDragStart, recipeConnectionDragover, recipeConnectionDrop,
   removeConnection, updateConnection
 }
@@ -18,6 +20,10 @@ function recipeConnectionDrop(e: DragEvent) {
   e.preventDefault();
   let sourceRow = document.getElementById(e.dataTransfer!.getData("source"))!;
   let targetRow = <HTMLElement>e.target!
+  connectRecipeRows(sourceRow, targetRow)
+}
+
+async function connectRecipeRows(sourceRow: HTMLElement, targetRow: HTMLElement) {
   while (targetRow.tagName !== "TR") { targetRow = <HTMLElement>targetRow.parentNode }
 
   // prevent recipes linking to themselves
@@ -27,8 +33,14 @@ function recipeConnectionDrop(e: DragEvent) {
 
   // prevent recipe inputs linking to other inputs, and outputs to other outputs
   if (sourceRow.getAttribute("direction") === targetRow.getAttribute("direction")) return
-  // match resource type
+  // match resource
   if (sourceRow.getAttribute("resourceType") !== targetRow.getAttribute("resourceType")) return
+  const resourceA = sourceRow.getAttribute("resource")
+  const resourceB = targetRow.getAttribute("resource")
+  const hasMatchingResource = (await queryDatabase(
+    "is-same-resource", {a: resourceA, b: resourceB})).result
+  if (!hasMatchingResource) return
+
 
   removeConnection(targetRow)
 

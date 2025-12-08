@@ -1,6 +1,11 @@
-﻿export {setupConnectionsSvg}
+﻿import {searchResourceCallback} from "./recipe-selection";
 
-window.onload = setupConnectionsSvg
+export {setupConnectionsSvg}
+
+window.onload = function () {
+  setupConnectionsSvg()
+  searchResourceCallback()
+}
 window.onresize = setupConnectionsSvg
 
 function setupConnectionsSvg() {

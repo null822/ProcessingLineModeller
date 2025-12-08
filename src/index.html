@@ -6,44 +6,77 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Processing Line Modeller</title>
 
+  <!--Jetbrains Mono-->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Doto:wght@100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
   <meta name="theme-color" content="#fafafa">
 </head>
 
 <body>
   <div class="topbar">
-    <input type="button" class="topbar-button" value="+" onclick="Main.addRecipe()">
-    <input type="text" id="resource-input"
-           onchange="Main.searchResourceCallback()"
-           onkeydown="this.onchange();"
-           onpaste = "this.onchange();"
-           oninput = "this.onchange();">
+    <input type="button" class="topbar-button" value="+" onclick="Main.lookupRecipe()">
+    <div class="topbar-search">
+      <label for="resource-search"></label>
+      <input type="text" size="1" class="topbar-search-text" id="resource-search"
+             onchange="Main.searchResourceCallback()"
+             onkeydown="this.onchange()"
+             onpaste="this.onchange()"
+             oninput="this.onchange()"
+             onfocusin="Main.onSearchResourceResultsFocusChance()"
+             onfocusout="Main.onSearchResourceResultsFocusChance()">
+      <div id="search-width-mirror" class="topbar-search-text width-mirror"></div>
+      <div class="topbar-search-results" id="resource-search-results" style="display: none"></div>
+    </div>
+  </div>
+
+  <div id="recipe-selector" class="recipe-selector" style="display: none">
+    <div class="recipe-selector-header">
+      <div>Recipe Selector</div>
+      <input type="button" class="close-button" value="-" onclick="Main.closeRecipeSelectionMenu()">
+    </div>
+    <div id="selector-type" class="recipe-selector-types"></div>
+    <table id="selector-recipe" class="recipe-selector-recipes">
+      <tbody></tbody>
+    </table>
   </div>
 
   <div id="recipes"></div>
   <svg id="connections"
-       style="pointer-events: none; position: absolute; top: 0; left: 0"
+       style="pointer-events: none; position: absolute; top: 0; left: 0; z-index: 900"
        width="100" height="100" viewBox="0 0 100 100">
   </svg>
 
-  <div id="recipe-dialog">
-    <div>
-      <table>
-        <tr><td>a</td></tr>
-        <tr><td>a</td></tr>
-        <tr><td>a</td></tr>
-        <tr><td>a</td></tr>
-        <tr><td>a</td></tr>
-      </table>
-    </div>
-  </div>
-
   <!--Templates-->
   <div>
+
+    <template id="resource-search-result-template">
+      <div class="topbar-search-results-item" onmousedown="Main.selectSearchResult(this)"></div>
+    </template>
+
+    <template id="recipe-selector-type-template">
+      <div class="recipe-selector-recipe-type" onclick="Main.selectRecipeType(this)"></div>
+    </template>
+    <template id="recipe-selector-recipe-template">
+      <tbody class="recipe-selector-recipe" onclick="Main.selectRecipe(this)">
+        <tr>
+          <td class="recipe-selector-recipe-header" colspan="4"></td>
+        </tr>
+        <tr>
+          <td class="recipe-selector-i recipe-selector-recipe-input-resources"></td>
+          <td class="recipe-selector-i recipe-selector-recipe-input-counts"></td>
+          <td class="recipe-selector-o recipe-selector-recipe-output-resources"></td>
+          <td class="recipe-selector-o recipe-selector-recipe-output-counts"></td>
+        </tr>
+      </tbody>
+    </template>
+
     <template id="recipe-template">
-      <div class="recipe">
+      <div class="recipe" style="position: fixed; top: 50px; left: 0">
         <div id="recipe-header" class="recipe-header">
           <div>Recipe</div>
-          <input type="button" class="recipe-delete-button" value="-" onclick="Main.deleteRecipe(this.parentNode.parentNode)">
+          <input type="button" class="close-button" value="-" onclick="Main.deleteRecipe(this.parentNode.parentNode)">
         </div>
         <table class="recipe-data" id="recipe-data">
           <tbody></tbody>

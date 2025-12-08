@@ -2,14 +2,14 @@
 import {createElement} from "./util";
 import {removeConnection} from "./recipe-connections"
 
-export {addRecipe, deleteRecipe}
+export {createRecipe, deleteRecipe}
 
 let recipeCounter = 0
 
-function addRecipe() {
-  let recipe = newRecipe(recipeCounter)
-  document.getElementById("recipes")?.appendChild(recipe)
-  dragElement(<HTMLElement>recipe);
+function createRecipe(recipe: any) {
+  let recipeElement = newRecipe(recipeCounter, recipe)
+  document.getElementById("recipes")?.appendChild(recipeElement)
+  dragElement(<HTMLElement>recipeElement);
 
   recipeCounter++;
 }
@@ -17,24 +17,32 @@ function addRecipe() {
 /**
  * Constructs a new recipe
  * @param recipeId the integer ID of the new recipe
+ * @param recipe the JSON Object of the recipe to construct
  * @returns {Node} the new recipe
  */
-function newRecipe(recipeId: number): Node {
-  let recipe = createElement("recipe")
-  recipe.removeAttribute("hidden")
-  recipe.id = `recipe${recipeId}`
-  recipe.querySelector("#recipe-header")!.id = `recipe${recipeId}-header`
-  let table = recipe.querySelector("#recipe-data")!
+function newRecipe(recipeId: number, recipe: any): Node {
+  const recipeElement = createElement("recipe")
+  recipeElement.id = `recipe${recipeId}`
+  recipeElement.style.zIndex = `${500 + recipeId}`
+  const header = recipeElement.querySelector("#recipe-header")!
+  header.id = `recipe${recipeId}-header`
+  header.querySelector("div")!.innerHTML = recipe.type
+
+  let table = recipeElement.querySelector("#recipe-data")!
   table.id = `recipe${recipeId}-data`
   let tableBody = table.children[0]
+  let rowId = 0
 
-  for (let rowId = 0; rowId < Math.ceil(Math.random() * 10); rowId++) {
-    let direction = Math.random() > 0.5 ? "input" : (Math.random() > 0.1 ? "output" : "neither");
-    let resourceType = Math.random() > 0.3 ? "item" : (Math.random() > 0.5 ? "fluid" : "energy");
-    tableBody.appendChild(newRecipeRow(recipeId, rowId, direction, resourceType, "minecraft:lava"))
+  for (const input of recipe.inputs) {
+    tableBody.appendChild(newRecipeIORow(recipeId, rowId, "input", input))
+    rowId++
+  }
+  for (const output of recipe.outputs) {
+    tableBody.appendChild(newRecipeIORow(recipeId, rowId, "output", output))
+    rowId++
   }
 
-  return recipe
+  return recipeElement
 }
 
 /**
@@ -42,18 +50,21 @@ function newRecipe(recipeId: number): Node {
  * @param recipeId the integer ID of the recipe this row belongs to
  * @param rowId the integer ID of the row, unique within this recipe
  * @param direction the direction of resources: input, output, or neither
- * @param resourceType the type of resource: item, fluid, energy, ...other
- * @param type the ID of the resource (ie minecraft:stone)
+ * @param row the JSON Object of the row to construct
  * @returns {HTMLElement} the new recipe row
  */
-function newRecipeRow(recipeId: number, rowId: number, direction: string, resourceType: string, type: string): HTMLElement {
-  let row = document.createElement("tr");
-  row.id = `recipe${recipeId}-row${rowId}`
-  row.setAttribute("connected-to", "none")
-  row.setAttribute("connected-by", "none")
-  row.setAttribute("direction", `${direction}`)
-  row.setAttribute("resourceType", `${resourceType}`)
-  if (direction === "output") row.setAttribute("type", `${type}`)
+function newRecipeIORow(recipeId: number, rowId: number, direction: string, row: any): HTMLElement {
+  console.log(row)
+
+  const resourceType = row.isFluid == "true" ? "fluid" : "item"
+
+  let rowElement = document.createElement("tr");
+  rowElement.id = `recipe${recipeId}-row${rowId}`
+  rowElement.setAttribute("connected-to", "none")
+  rowElement.setAttribute("connected-by", "none")
+  rowElement.setAttribute("direction", direction)
+  rowElement.setAttribute("resourceType", resourceType)
+  rowElement.setAttribute("resource", row.resource)
 
   // column 0
   let connector;
@@ -64,17 +75,18 @@ function newRecipeRow(recipeId: number, rowId: number, direction: string, resour
     connector = createElement("recipe-row-connector-disabled");
   }
   connector.className += " recipe-row-input"
-  row.appendChild(connector)
+  rowElement.appendChild(connector)
 
   // column 1
   let label = createElement("recipe-row-label")
-  label.innerHTML = "Recipe Row"
-  row.appendChild(label)
+  label.innerHTML = row.resource
+  rowElement.appendChild(label)
 
   // column 2
   let value = createElement("recipe-row-value")
-  value.innerHTML = `${recipeId}-${rowId}`
-  row.appendChild(value)
+  value.innerHTML = row.quantity + (row.isFluid == "true" ? "&nbsp;&nbsp;L" : "&nbsp;it")
+  console.log(value.innerHTML)
+  rowElement.appendChild(value)
 
   // column 3
   if (direction === "output") {
@@ -84,9 +96,9 @@ function newRecipeRow(recipeId: number, rowId: number, direction: string, resour
     connector = createElement("recipe-row-connector-disabled")
   }
   connector.className += " recipe-row-output"
-  row.appendChild(connector)
+  rowElement.appendChild(connector)
 
-  return row
+  return rowElement
 }
 
 function deleteRecipe(recipe: HTMLElement) {

@@ -1,0 +1,45 @@
+﻿:root{
+  --base0: #000000;
+  --base1: #000000;
+  --base2: #202020;
+  --base3: #202020;
+  --base4: #404040;
+
+  --accent1: #2196F3;
+  --accent2: #56B6FF;
+  --accent3: #7FC9FF;
+
+  --red1: #DD6374;
+  --red2: #FF93A3;
+  --red3: #FFC1CA;
+
+  --green1: #1ECE85;
+
+  --item-color: #FFDF3F;
+  --fluid-color: #6B35FF;
+  --energy-color: #FF3D6D;
+  --unknown-color: #FF23FF;
+
+  --text1: #ffffff;
+
+  --recipe-selector-type: #606060;
+  --recipe-selector-type-hover: #656565;
+  --recipe-selector-type-select: #6A6A6A;
+
+  --recipe-selector-recipe: #707070;
+  --recipe-selector-recipe-header-hover: #808080;
+  
+  --recipe-selector-recipe-input: #1ECE85;
+  --recipe-selector-recipe-output: #DD6374;
+  --recipe-selector-recipe-input-hover: #63D8A4;
+  --recipe-selector-recipe-output-hover: #E27686;
+
+  --recipe-data-border: #909090;
+  --recipe-data-hover: #B0B0B0;
+  --recipe-data1: #D0D0D0;
+  --recipe-data2: #E0E0E0;
+
+  --topbar-height: 50px;
+  --topbar-content-height: calc(var(--topbar-height) - 10px);
+  --max-resource-search-results: 100;
+}

@@ -1,0 +1,62 @@
+﻿.recipe {
+  position: absolute;
+  background-color: #f1f1f1;
+  border: 2px solid var(--accent1);
+  box-shadow: var(--base4) 1px 1px 20px;
+}
+.recipe-header {
+  min-width: 100px;
+  padding: 5px;
+  display: flex;
+  justify-content: space-between;
+  vertical-align: center;
+  background-color: var(--accent1);
+  color: var(--text1);
+  cursor: move;
+}
+
+table.recipe-data {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.recipe-data>tbody>tr> td {
+  border: 1px solid var(--recipe-data-border);
+}
+
+.recipe-data>tbody> tr:nth-child(even){ background-color: var(--recipe-data2) }
+.recipe-data>tbody> tr:nth-child(odd){ background-color: var(--recipe-data1) }
+.recipe-data>tbody> tr:hover { background-color: var(--recipe-data-hover) }
+
+.recipe-row-connector {
+  width:0.1%;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: center;
+}
+.recipe-row-connector-disabled {
+  width:0.1%;
+  white-space: nowrap;
+  text-align: center;
+  vertical-align: center;
+}
+.recipe-row-connector > div {
+  cursor: move;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+}
+.recipe-row-input {
+  background-color: var(--green1);
+}
+.recipe-row-output {
+  background-color: var(--red1);
+}
+.recipe-row-label {
+  text-align: left;
+  padding: 0 5px 0 5px;
+}
+.recipe-row-value {
+  text-align: right;
+  padding: 0 5px 0 5px;
+}
