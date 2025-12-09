@@ -1,5 +1,6 @@
 ﻿.recipe {
   position: absolute;
+  width: fit-content;
   background-color: #f1f1f1;
   border: 2px solid var(--accent1);
   box-shadow: var(--base4) 1px 1px 20px;

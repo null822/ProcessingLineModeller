@@ -1,9 +1,9 @@
 ﻿:root{
   --base0: #000000;
-  --base1: #000000;
   --base2: #202020;
-  --base3: #202020;
+  --base3: #303030;
   --base4: #404040;
+  --base6: #606060;
 
   --accent1: #2196F3;
   --accent2: #56B6FF;
@@ -20,7 +20,8 @@
   --energy-color: #FF3D6D;
   --unknown-color: #FF23FF;
 
-  --text1: #ffffff;
+  --text1: #FFFFFF;
+  --text2: #707070;
 
   --recipe-selector-type: #606060;
   --recipe-selector-type-hover: #656565;
@@ -28,7 +29,7 @@
 
   --recipe-selector-recipe: #707070;
   --recipe-selector-recipe-header-hover: #808080;
-  
+
   --recipe-selector-recipe-input: #1ECE85;
   --recipe-selector-recipe-output: #DD6374;
   --recipe-selector-recipe-input-hover: #63D8A4;

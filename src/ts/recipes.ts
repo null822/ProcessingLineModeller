@@ -24,6 +24,11 @@ function newRecipe(recipeId: number, recipe: any): Node {
   const recipeElement = createElement("recipe")
   recipeElement.id = `recipe${recipeId}`
   recipeElement.style.zIndex = `${500 + recipeId}`
+
+  let workspaceContainer = document.getElementById("workspace-container")!
+  recipeElement.style.top = `${-workspaceContainer.offsetTop + 50}px`
+  recipeElement.style.left = `${-workspaceContainer.offsetLeft}px`
+
   const header = recipeElement.querySelector("#recipe-header")!
   header.id = `recipe${recipeId}-header`
   header.querySelector("div")!.innerHTML = recipe.type
@@ -54,8 +59,6 @@ function newRecipe(recipeId: number, recipe: any): Node {
  * @returns {HTMLElement} the new recipe row
  */
 function newRecipeIORow(recipeId: number, rowId: number, direction: string, row: any): HTMLElement {
-  console.log(row)
-
   const resourceType = row.isFluid == "true" ? "fluid" : "item"
 
   let rowElement = document.createElement("tr");
@@ -85,7 +88,6 @@ function newRecipeIORow(recipeId: number, rowId: number, direction: string, row:
   // column 2
   let value = createElement("recipe-row-value")
   value.innerHTML = row.quantity + (row.isFluid == "true" ? "&nbsp;&nbsp;L" : "&nbsp;it")
-  console.log(value.innerHTML)
   rowElement.appendChild(value)
 
   // column 3

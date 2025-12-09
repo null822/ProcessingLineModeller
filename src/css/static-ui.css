@@ -1,4 +1,17 @@
-﻿.topbar {
+﻿.scale-display {
+  z-index: 1999;
+  position: fixed;
+  height: 20px;
+  top: calc(100vh - 20px);
+  box-sizing: border-box;
+  background-color: var(--base2);
+  border: 1px solid var(--base0);
+  color: var(--text2);
+}
+
+.topbar {
+  z-index: 2000;
+  position: fixed;
   width: 100vw;
   height: var(--topbar-height);
   padding: 5px;

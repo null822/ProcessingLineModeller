@@ -1,11 +1,21 @@
 ﻿body {
   margin: 0;
   padding: 0;
-  background-color: var(--base4);
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
   font-family: "JetBrains Mono", monospace;
+  overflow: hidden;
+  background-color: var(--base3);
+}
+
+.workspace-container {
+  position: relative;
+  z-index: 400;
+  width: 100%;
+  height: 100%;
+
+  background-image: radial-gradient(var(--base6) 1px, var(--base4) 1px);
+  background-size: 12px 12px;
 }
 
 .close-button {
