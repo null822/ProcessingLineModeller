@@ -34,7 +34,7 @@ function onDrag(element: HTMLElement, posX: number, posY: number): any {
   if (id == "workspace-container") {
     return {
       canDrag: true,
-      posX: Math.min(Math.max(posX, -workspaceWidth +  window.innerWidth), 0),
+      posX: Math.min(Math.max(posX, -workspaceWidth +  window.innerWidth), 0), // TODO: correct coordinate mapping
       posY: Math.min(Math.max(posY, -workspaceHeight +  window.innerHeight), 0)
     }
   }
@@ -100,7 +100,7 @@ function dragElement(elmnt: HTMLElement) {
     const r = onDrag(elmnt, posX, posY)
     if (!r.canDrag) return
 
-    dragStartX = e.clientX - (posX - r.posX)
+    dragStartX = e.clientX - (posX - r.posX) // TODO: element sticking to edge
     dragStartY = e.clientY - (posY - r.posY)
 
     posX = r.posX

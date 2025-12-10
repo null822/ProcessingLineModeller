@@ -2,10 +2,9 @@
 import {dragElement} from "./dragging";
 import {workspaceHeight, workspaceWidth} from "./constants";
 
-export {setupConnectionsSvg, scale}
+export {scale}
 
 window.onload = function () {
-  setupConnectionsSvg()
   searchResourceCallback()
 
   let workspaceContainer = document.getElementById("workspace-container")!
@@ -15,18 +14,12 @@ window.onload = function () {
   workspaceContainer.style.top = `${-workspaceHeight / 2}px`
   dragElement(workspaceContainer)
 
-  updateScale(0)
-}
-
-window.onresize = setupConnectionsSvg
-
-function setupConnectionsSvg() {
   let svg = document.getElementById("connections")!
-  let width = window.innerWidth
-  let height = window.innerHeight
-  svg.setAttribute("width", `${width}`)
-  svg.setAttribute("height", `${height}`)
-  svg.setAttribute("viewBox", `0 0 ${width} ${height}`)
+  svg.setAttribute("width", `${workspaceWidth}`)
+  svg.setAttribute("height", `${workspaceHeight}`)
+  svg.setAttribute("viewBox", `0 0 ${workspaceWidth} ${workspaceHeight}`)
+
+  updateScale(0)
 }
 
 let scrollPos = 72;
@@ -40,13 +33,13 @@ document.onwheel = function (e) {
 
 function updateScale(deltaY: number) {
   scrollPos += deltaY / 100
-  scrollPos = Math.max(Math.min(scrollPos, 100), 72)
+  scrollPos = Math.max(Math.min(scrollPos, 128), 72)
 
   scale =  1.1 ** (-scrollPos) * 1024
   scale = Math.min(scale, 1)
 
   let workspaceContainer = document.getElementById("workspace-container")!
-  workspaceContainer.style.scale = `${scale}`
+  workspaceContainer.style.transform = `translateZ(0) scale(${scale})`
   let scaleDisplay = document.getElementById("scale-display")!
-  scaleDisplay.innerHTML = `${Math.round(scale * 100)}% (hold shift)`
+  scaleDisplay.innerHTML = `${Math.round(scale * 100)}% (shift + scroll)`
 }

@@ -42,6 +42,10 @@ async function handleRequest(request: http.IncomingMessage, response: http.Serve
       response.writeHead(200, {'Content-Type': 'application/json'})
       response.end(JSON.stringify(isSameResource(query.a, query.b)))
       return 200
+    case "/get-resource-type":
+      response.writeHead(200, {'Content-Type': 'application/json'})
+      response.end(JSON.stringify(getResourceType(query.resource)))
+      return 200
     default:
       return 404
   }
@@ -142,6 +146,8 @@ function getRecipe(name: string) {
   const meta = db
     .prepare<any[], any>(`select id, type, duration, power from recipes where name = '${name}'`)
     .get()
+  if (meta == null)
+    return {error: "no result"}
 
   return {
     name: name,
@@ -162,15 +168,32 @@ function isSameResource(a: string, b: string) {
   return {result: false}
 }
 
+function getResourceType(resource: string) {
+  resource = sanitizeInput(resource)
+
+  let type = resource.startsWith("#") ?
+    db
+      .prepare<any[], any>(`select type from tags where name = '${resource}'`)
+      .get()?.type
+    :
+    db
+      .prepare<any[], any>(`select type from resources where name = '${resource}'`)
+      .get()?.type
+
+  return {
+    resourceType: type
+  }
+}
+
 function getRecipeIO(id: number, isOutput: boolean) {
   const table = isOutput ? "recipeOutputs" : "recipeInputs"
   return db
-    .prepare<any[], any>(`select resource, isFluid, count from ${table} where id = ${id}`)
+    .prepare<any[], any>(`select resource, type, count from ${table} where id = ${id}`)
     .all()
     .map(row => {
       return {
         resource: row.resource,
-        isFluid: row.isFluid,
+        type: row.type,
         quantity: row.count
       }
     })

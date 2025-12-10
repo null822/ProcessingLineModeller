@@ -8,7 +8,6 @@
     "rs-types rs-recipes";
   grid-template-columns: auto auto;
   width: fit-content;
-  color: var(--text1);
   max-height: calc(100vh - var(--topbar-height) - 30px);
   box-sizing: border-box;
 }

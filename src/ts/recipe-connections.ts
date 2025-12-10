@@ -1,10 +1,12 @@
 ﻿import {createElement} from "./util";
 import {queryDatabase} from "./db-connection";
+import {scale} from "./setup";
+import {evaluate} from "./evaluation";
 
 export {
-  connectRecipeRows,
+  connectRecipeRows, removeConnection,
   recipeConnectionDragStart, recipeConnectionDragover, recipeConnectionDrop,
-  removeConnection, updateConnection
+  updateConnection
 }
 
 function recipeConnectionDragStart(e: DragEvent) {
@@ -34,7 +36,7 @@ async function connectRecipeRows(sourceRow: HTMLElement, targetRow: HTMLElement)
   // prevent recipe inputs linking to other inputs, and outputs to other outputs
   if (sourceRow.getAttribute("direction") === targetRow.getAttribute("direction")) return
   // match resource
-  if (sourceRow.getAttribute("resourceType") !== targetRow.getAttribute("resourceType")) return
+  if (sourceRow.getAttribute("resource-type") !== targetRow.getAttribute("resource-type")) return
   const resourceA = sourceRow.getAttribute("resource")
   const resourceB = targetRow.getAttribute("resource")
   const hasMatchingResource = (await queryDatabase(
@@ -47,12 +49,13 @@ async function connectRecipeRows(sourceRow: HTMLElement, targetRow: HTMLElement)
   sourceRow.setAttribute("connected-to", targetRow.id)
   targetRow.setAttribute("connected-to", sourceRow.id)
 
-  let connection = newRecipeConnection(sourceRow.getAttribute("resourceType") ?? "item")!
+  let connection = newRecipeConnection(sourceRow.getAttribute("resource-type") ?? "item")!
   sourceRow.setAttribute("connected-by", `${connection.id}`)
   targetRow.setAttribute("connected-by", `${connection.id}`)
 
   document.getElementById("connections")!.appendChild(connection)
   updateConnection(sourceRow.id)
+  evaluate()
 }
 function removeConnection(row: HTMLElement) {
   let destination = row.getAttribute("connected-to") ?? "none"
@@ -68,6 +71,7 @@ function removeConnection(row: HTMLElement) {
     document.getElementById(destination)?.setAttribute("connected-to", "none")
     document.getElementById(destination)?.setAttribute("connected-by", "none")
   }
+  evaluate()
 }
 
 let recipeConnectionCounter = 0
@@ -101,13 +105,16 @@ function updateConnection(id: string) {
   let rowB = document.getElementById(connectedTo)?.querySelector(".recipe-row-connector")
   if (connection == null || rowA == null || rowB == null) return;
 
-  let rectA = rowA.getBoundingClientRect();
-  let ax = rectA.x + 0.5*rectA.width
-  let ay = rectA.y + 0.5*rectA.height
+  const workspaceContainer = document.getElementById("workspace-container")!
+  const workspaceRect = workspaceContainer.getBoundingClientRect()
 
-  let rectB = rowB.getBoundingClientRect();
-  let bx = rectB.x + 0.5*rectB.width
-  let by = rectB.y + 0.5*rectB.height
+  let rectA = rowA.getBoundingClientRect()
+  let ax = (rectA.x + 0.5*rectA.width - workspaceRect.x) / scale
+  let ay = (rectA.y + 0.5*rectA.height - workspaceRect.y) / scale
+
+  let rectB = rowB.getBoundingClientRect()
+  let bx = (rectB.x + 0.5*rectB.width - workspaceRect.x) / scale
+  let by = (rectB.y + 0.5*rectB.height - workspaceRect.y) / scale
 
   updateCurve(connection, true, ax, ay, true, bx, by)
 }

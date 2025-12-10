@@ -8,17 +8,26 @@
 .recipe-header {
   min-width: 100px;
   padding: 5px;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-areas: "name quantity close";
+  grid-template-columns: fit-content(100%) fit-content(100%) 1fr;
+  justify-content: start;
+  gap: 5px;
+
   vertical-align: center;
   background-color: var(--accent1);
-  color: var(--text1);
+  color: var(--textF);
   cursor: move;
+}
+.recipe-header-quantity {
+  color: var(--textD);
+  font-weight: 900;
 }
 
 table.recipe-data {
   border-collapse: collapse;
   width: 100%;
+  color: var(--text0);
 }
 
 .recipe-data>tbody>tr> td {
@@ -53,7 +62,7 @@ table.recipe-data {
 .recipe-row-output {
   background-color: var(--red1);
 }
-.recipe-row-label {
+.recipe-row-key {
   text-align: left;
   padding: 0 5px 0 5px;
 }

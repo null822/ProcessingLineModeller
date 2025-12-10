@@ -1,5 +1,5 @@
 ﻿import {createElement} from "./util";
-import {createRecipe} from "./recipes";
+import {createIO, createRecipe} from "./recipes";
 import {queryDatabase} from "./db-connection";
 
 export {
@@ -7,7 +7,8 @@ export {
   selectSearchResult,
 
   closeRecipeSelectionMenu,
-  lookupRecipe, selectRecipeType, selectRecipe,
+  lookupRecipe, addIO,
+  selectRecipeType, selectRecipe,
 }
 
 function onSearchResourceResultsFocusChance() {
@@ -53,6 +54,8 @@ async function searchResource() {
 
   if (matches.includes(search)) {
     targetResource = search
+  } else {
+    targetResource = ""
   }
 }
 
@@ -71,6 +74,12 @@ async function lookupRecipe() {
     typesSelector.appendChild(element)
   }
   selectRecipeType(<HTMLElement>typesSelector.firstElementChild)
+}
+
+async function addIO(type: string) {
+  if (targetResource === "") return
+  const resourceType = (await queryDatabase("get-resource-type", {resource: targetResource})).resourceType
+  createIO(type, targetResource, resourceType)
 }
 
 function selectRecipeType(element: HTMLElement) {
@@ -103,11 +112,11 @@ function selectRecipeType(element: HTMLElement) {
       .join("<br>")
     const inputCounts = recipe
       .inputs
-      .map((input: any) => input.quantity + (input.isFluid == "true" ? "&nbsp;&nbsp;L" : "&nbsp;it"))
+      .map((input: any) => input.quantity + (input.type == "fluid" ? "&nbsp;&nbsp;L" : "&nbsp;it"))
       .join("<br>")
     const outputCounts = recipe
       .outputs
-      .map((output: any) => output.quantity + (output.isFluid == "true" ? "&nbsp;&nbsp;L" : "&nbsp;it"))
+      .map((output: any) => output.quantity + (output.type == "fluid" ? "&nbsp;&nbsp;L" : "&nbsp;it"))
       .join("<br>")
 
     element.querySelector(".recipe-selector-recipe-input-resources")!.innerHTML = inputs

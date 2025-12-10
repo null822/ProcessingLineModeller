@@ -3,9 +3,11 @@
   padding: 0;
   width: 100vw;
   height: 100vh;
+  perspective: 1px;
   font-family: "JetBrains Mono", monospace;
   overflow: hidden;
   background-color: var(--base3);
+  color: var(--textF);
 }
 
 .workspace-container {
@@ -25,8 +27,9 @@
   display: flex;
   justify-content: space-evenly;
   border: 0;
-  color: var(--text1);
+  color: var(--textF);
   background-color: var(--red1);
+  justify-self: end;
 }
 .close-button:hover { background-color: var(--red2) }
 .close-button:active { background-color: var(--red3) }

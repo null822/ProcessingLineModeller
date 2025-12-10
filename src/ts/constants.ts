@@ -1,4 +1,4 @@
 ﻿export {workspaceWidth, workspaceHeight}
 
-const workspaceWidth = 12000
-const workspaceHeight = 8000
+const workspaceWidth = 24000
+const workspaceHeight = 16000

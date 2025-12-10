@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Processing Line Modeller</title>
 
-  <!--Jetbrains Mono-->
+  <!--JetBrains Mono-->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Doto:wght@100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
@@ -15,22 +15,28 @@
 </head>
 
 <body>
-  <div class="topbar">
-    <input type="button" class="topbar-button" value="+" onclick="Main.lookupRecipe()">
-    <div class="topbar-search">
-      <label for="resource-search"></label>
-      <input type="text" size="1" class="topbar-search-text" id="resource-search"
-             onchange="Main.searchResourceCallback()"
-             onkeydown="this.onchange()"
-             onpaste="this.onchange()"
-             oninput="this.onchange()"
-             onfocusin="Main.onSearchResourceResultsFocusChance()"
-             onfocusout="Main.onSearchResourceResultsFocusChance()">
-      <div id="search-width-mirror" class="topbar-search-text width-mirror"></div>
-      <div class="topbar-search-results" id="resource-search-results" style="display: none"></div>
+  <div class="topbar-container">
+    <div class="topbar">
+      <input type="button" style="grid-area: recipe" class="topbar-button" value=">" onclick="Main.lookupRecipe()">
+      <input type="button" style="grid-area: source"
+             class="topbar-button topbar-button-half topbar-button-green" value="+"
+             onclick="Main.addIO('source')">
+      <input type="button" style="grid-area: drain"
+             class="topbar-button topbar-button-half topbar-button-red" value="-"
+             onclick="Main.addIO('drain')">
+      <div style="grid-area: search" class="topbar-search">
+        <input type="text" size="1" class="topbar-search-text" id="resource-search"
+               onchange="Main.searchResourceCallback()"
+               onkeydown="this.onchange()"
+               onpaste="this.onchange()"
+               oninput="this.onchange()"
+               onfocusin="Main.onSearchResourceResultsFocusChance()"
+               onfocusout="Main.onSearchResourceResultsFocusChance()">
+        <div id="search-width-mirror" class="topbar-search-text width-mirror"></div>
+      </div>
+      <div style="grid-area: results; display: none" class="topbar-search-results" id="resource-search-results"></div>
     </div>
   </div>
-
   <div id="scale-display" class="scale-display">uhh scale</div>
 
   <div id="recipe-selector" class="recipe-selector" style="display: none">
@@ -78,9 +84,11 @@
 
     <template id="recipe-template">
       <div class="recipe">
+        <script type="application/json" id="recipe-json"></script>
         <div id="recipe-header" class="recipe-header">
-          <div>Recipe</div>
-          <input type="button" class="close-button" value="-" onclick="Main.deleteRecipe(this.parentNode.parentNode)">
+          <div style="grid-area: name" class="recipe-header-name">Recipe</div>
+          <div style="grid-area: quantity" class="recipe-header-quantity">x1</div>
+          <input style="grid-area: close" type="button" class="close-button" value="-" onclick="Main.deleteRecipe(this.parentNode.parentNode)">
         </div>
         <table class="recipe-data" id="recipe-data">
           <tbody></tbody>
@@ -100,11 +108,21 @@
         <div><svg width="12" height="12"></svg></div>
       </td>
     </template>
-    <template id="recipe-row-label-template">
-      <td class="recipe-row-label">a</td>
+    <template id="recipe-row-key-template">
+      <td class="recipe-row-key"></td>
     </template>
     <template id="recipe-row-value-template">
-      <td class="recipe-row-value">a</td>
+      <td class="recipe-row-value"></td>
+    </template>
+    <template id="recipe-row-evaluation-start-template">
+      <td class="recipe-row-value">
+        <input type="checkbox" onclick="Main.setEvaluateElement(this.parentElement.parentElement.parentElement.parentElement.parentElement)">
+      </td>
+    </template>
+    <template id="recipe-row-rate-template">
+      <td class="recipe-row-value">
+        <input type="number" value="1" onchange="Main.evaluate()" disabled>
+      </td>
     </template>
 
     <template id="recipe-connection-template">

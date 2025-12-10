@@ -6,39 +6,62 @@
   box-sizing: border-box;
   background-color: var(--base2);
   border: 1px solid var(--base0);
-  color: var(--text2);
+  color: var(--text7);
 }
 
-.topbar {
+.topbar-container {
   z-index: 2000;
   position: fixed;
   width: 100vw;
   height: var(--topbar-height);
+
   padding: 5px;
-  display: flex;
-  justify-content: flex-start;
+
   margin: 0;
   box-sizing: border-box;
   background-color: var(--base2);
   border-bottom: 2px solid var(--base0)
 }
+.topbar {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-areas:
+    "recipe recipe source search"
+    "recipe recipe drain results";
+  grid-template-columns: 20px 20px 20px fit-content(100%);
+}
 .topbar-button {
-  height: var(--topbar-content-height);
+  height: var(--topbar-inner-height);
   aspect-ratio: 1;
   border: 1px solid var(--base0);
   box-sizing: border-box;
-  color: var(--text1);
+  color: var(--textF);
   background-color: var(--accent1);
   font-size: 1.5em;
 }
 .topbar-button:hover { background-color: var(--accent2) }
 .topbar-button:active { background-color: var(--accent3) }
+.topbar-button-half {
+  height: calc(var(--topbar-inner-height) / 2);
+  font-size: 0.75em;
+}
+.topbar-button-green {
+  background-color: var(--green1);
+}
+.topbar-button-green:hover { background-color: var(--green2) }
+.topbar-button-green:active { background-color: var(--green3) }
+.topbar-button-red {
+  background-color: var(--red1);
+}
+.topbar-button-red:hover { background-color: var(--red2) }
+.topbar-button-red:active { background-color: var(--red3) }
 
 .topbar-search {
   min-width: 200px;
   max-height: calc(min(
-      var(--topbar-content-height)/2 * (var(--max-resource-search-results) + 1) + 2px,
-      100vh - var(--topbar-content-height)/2));
+      var(--topbar-inner-height)/2 * (var(--max-resource-search-results) + 1) + 2px,
+      100vh - var(--topbar-inner-height)/2));
   height: fit-content;
   display: flex;
   justify-content: flex-start;
@@ -46,18 +69,20 @@
 }
 .topbar-search-text {
   min-width: 100%;
-  height: calc(var(--topbar-content-height)/2);
+  width: 100%;
+  height: calc(var(--topbar-inner-height)/2);
   border: 1px solid var(--base0);
   box-sizing: border-box;
   padding: 0 2px 0 2px;
   font-size: 16px;
   font-family: "JetBrains Mono", monospace;
-  color: var(--text1);
+  color: var(--textF);
   background-color: var(--accent1);
 }
 .topbar-search-text:hover { background-color: var(--accent2) }
 .topbar-search-text:focus { outline: none }
 .width-mirror {
+  width: fit-content;
   height: 0;
   overflow: clip;
   padding: 0 2px 0 2px;
@@ -68,7 +93,8 @@
 }
 
 .topbar-search-results {
-  width: 100%;
+  min-width: 200px;
+  width: fit-content;
   height: fit-content;
   overflow: scroll;
   box-sizing: border-box;
@@ -77,12 +103,12 @@
   background-color: var(--accent1);
 }
 .topbar-search-results-item {
-  height: calc(var(--topbar-content-height)/2);
+  height: calc(var(--topbar-inner-height)/2);
   width: 100%;
   padding: 0 2px 0 2px;
   box-sizing: border-box;
   font-size: 16px;
-  color: var(--text1);
+  color: var(--textF);
   cursor: pointer;
 }
 .topbar-search-results-item:hover {

@@ -9,19 +9,24 @@
   --accent2: #56B6FF;
   --accent3: #7FC9FF;
 
+  --red0: #FF3D6D;
   --red1: #DD6374;
   --red2: #FF93A3;
   --red3: #FFC1CA;
 
   --green1: #1ECE85;
+  --green2: #7EE5BA;
+  --green3: #B3EFD6;
 
   --item-color: #FFDF3F;
   --fluid-color: #6B35FF;
-  --energy-color: #FF3D6D;
   --unknown-color: #FF23FF;
+  --error-color: #ff3d3d;
 
-  --text1: #FFFFFF;
-  --text2: #707070;
+  --text0: #000000;
+  --text7: #777777;
+  --textD: #DDDDDD;
+  --textF: #FFFFFF;
 
   --recipe-selector-type: #606060;
   --recipe-selector-type-hover: #656565;
@@ -41,6 +46,7 @@
   --recipe-data2: #E0E0E0;
 
   --topbar-height: 50px;
-  --topbar-content-height: calc(var(--topbar-height) - 10px);
+  --topbar-inner-height: calc(var(--topbar-height) - 10px);
+  --topbar-grid-size: calc(var(--topbar-inner-height) / 2);
   --max-resource-search-results: 100;
 }
