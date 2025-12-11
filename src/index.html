@@ -17,15 +17,15 @@
 <body>
   <div class="topbar-container">
     <div class="topbar">
-      <input type="button" style="grid-area: recipe" class="topbar-button" value=">" onclick="Main.lookupRecipe()">
-      <input type="button" style="grid-area: source"
+      <input title="Create Recipe" type="button" style="grid-area: recipe" class="topbar-button" value=">" onclick="Main.lookupRecipe()">
+      <input title="Create Source" type="button" style="grid-area: source"
              class="topbar-button topbar-button-half topbar-button-green" value="+"
              onclick="Main.addIO('source')">
-      <input type="button" style="grid-area: drain"
+      <input title="Create Drain" type="button" style="grid-area: drain"
              class="topbar-button topbar-button-half topbar-button-red" value="-"
              onclick="Main.addIO('drain')">
       <div style="grid-area: search" class="topbar-search">
-        <input type="text" size="1" class="topbar-search-text" id="resource-search"
+        <input placeholder="Search Resources" type="text" size="1" class="topbar-search-text" id="resource-search"
                onchange="Main.searchResourceCallback()"
                onkeydown="this.onchange()"
                onpaste="this.onchange()"
